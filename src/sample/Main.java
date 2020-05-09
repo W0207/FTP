@@ -9,13 +9,12 @@ import javafx.stage.Stage;
 import java.net.URL;
 
 public class Main extends Application {
-
     @Override
     public void start(Stage primaryStage) throws Exception{
         URL resource =getClass().getResource("sample.fxml");
         Parent root = FXMLLoader.load(resource);
         primaryStage.setTitle("MyFTP");
-        primaryStage.setScene(new Scene(root, 600, 700));
+        primaryStage.setScene(new Scene(root, 500, 620));
         primaryStage.show();
     }
 

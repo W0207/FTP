@@ -1,11 +1,14 @@
 package sample;
 
+import com.abee.ftp.client.secure.Authenticator;
 import com.abee.ftp.common.state.ResponseBody;
 import com.abee.ftp.client.MyFtpClient;
 import javafx.fxml.Initializable;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
@@ -18,6 +21,8 @@ public class Controller implements Initializable{
 
     MyFtpClient client = new MyFtpClient();
 
+    Authenticator authenticator = new Authenticator();
+
     public Button button_connect;
 
     public Button button_download;
@@ -28,21 +33,32 @@ public class Controller implements Initializable{
 
     public TextField remote;
 
+    public TextField ip;
+
+    public TextField lport;
+
+    public TextField sport;
+
     public TextField local;
 
-    public TextField catalog;
-
-    public TextArea show_list;
+    public TextField address;
 
     public TextArea show_response;
+
+    public TextArea show_dictionary;
+
+    public CheckBox encryption;
+
+    public String init;
+
+    boolean secure = false;
 
     public void initialize(URL location, ResourceBundle resources)
     {
 
     }
 
-    public void Print_List(String x)
-    {
+    public void Print_List(String x){
         String y,z;
         int m,p,q;
         m=x.length();
@@ -50,10 +66,10 @@ public class Controller implements Initializable{
         p=y.indexOf("=");
         if(p!=-1) {
             z = y.substring(0, p);
-            show_list.appendText(z);
-            show_list.appendText("\n");
+            show_dictionary.appendText(z);
+            show_dictionary.appendText("\n");
             int r = z.length();
-            y = y.substring(r+1,y.length());
+            y = y.substring(r+1);
         }
         for(m=0;m<y.length();m++)
         {
@@ -61,14 +77,15 @@ public class Controller implements Initializable{
             q=y.indexOf("=");
             if(p!=-1&&q!=-1) {
                 z = y.substring(p+1, q);
-                show_list.appendText(z);
-                show_list.appendText("\n");
-                y=y.substring(q+1,y.length());
+                show_dictionary.appendText(z);
+                show_dictionary.appendText("\n");
+                y=y.substring(q+1);
             }
             if(p==-1||q==-1)
                 break;
         }
     }
+<<<<<<< HEAD
     
     public void Button_Connect(javafx.event.ActionEvent actionEvent)throws IOException,ClassNotFoundException {
         client.connect("localhost", 2221);
@@ -76,6 +93,13 @@ public class Controller implements Initializable{
         ResponseBody a = client.switch1(init);//切换目录
         ResponseBody b = client.switch2(init);//输出当前目录
         Map<String, Boolean> c = client.switch3(init);//打印列表
+=======
+
+    public void print(String root) throws IOException, ClassNotFoundException {
+        ResponseBody a = client.switch1(root);//切换目录
+        ResponseBody b = client.switch2(root);//输出当前目录
+        Map<String, Boolean> c = client.switch3(root);//打印列表
+>>>>>>> 24d5527... update
         Print_List(c.toString());
         show_response.appendText(a.toString());
         show_response.appendText("\n");
@@ -84,6 +108,7 @@ public class Controller implements Initializable{
     }
 
     public void Button_Confirm(javafx.event.ActionEvent actionEvent)throws IOException,ClassNotFoundException {
+<<<<<<< HEAD
         String catalog_address=catalog.getText().toString();
         ResponseBody a = client.switch1(catalog_address);  //切换目录
         ResponseBody b = client.switch2(catalog_address);  //输出当前目录
@@ -94,18 +119,39 @@ public class Controller implements Initializable{
         show_response.appendText("\n");
         show_response.appendText(b.toString());
         show_response.appendText("\n");
+=======
+        show_dictionary.clear();
+        String new_address=address.getText();
+        print(new_address);
+    }
+
+    public void Button_Connect(javafx.event.ActionEvent actionEvent)throws IOException,ClassNotFoundException {
+        String ip_address=ip.getText();
+        int port1=Integer.parseInt(lport.getText());
+        int port2=Integer.parseInt(sport.getText());
+        client.connect(ip_address, port1);
+        authenticator.connect(ip_address, port2);
+        authenticator.authenticate();
+        init="D:/OTHER/server";
+        address.appendText(init);
+        print(init);
+>>>>>>> 24d5527... update
     }
 
     public void Button_Download(javafx.event.ActionEvent actionEvent)throws ClassNotFoundException,IOException{
-        String local_address=local.getText().toString();
-        String remote_address=remote.getText().toString();
-        client.download(remote_address,local_address);
+        if(encryption.isSelected())
+            secure=true;
+        String local_address=local.getText();
+        String remote_address=remote.getText();
+        client.download(remote_address,local_address,secure);
     }
 
     public void Button_Upload(javafx.event.ActionEvent actionEvent)throws ClassNotFoundException,IOException {
-        String local_address=local.getText().toString();
-        String remote_address=remote.getText().toString();
-        client.upload(local_address,remote_address);
+        if(encryption.isSelected())
+            secure=true;
+        String local_address=local.getText();
+        String remote_address=remote.getText();
+        client.upload(local_address,remote_address,secure);
     }
 }
 

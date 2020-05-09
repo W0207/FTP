@@ -2,11 +2,9 @@ package com.abee.ftp.client;
 
 import com.abee.ftp.common.state.ResponseBody;
 import com.abee.ftp.common.state.ResponseCode;
+import org.apache.commons.codec.digest.DigestUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,41 +18,61 @@ public class AdvancedOperationSet extends BasicOperationSet {
     }
 
     @Override
-    public boolean uploads(File file) throws IOException, ClassNotFoundException {
+    public boolean uploads(File file, boolean withSecurity) throws IOException, ClassNotFoundException {
         if (file.isDirectory()) {
             for (File f: Objects.requireNonNull(file.listFiles())) {
                 if (f.isDirectory()) {
                     mkd(f.getName());
                     String pwd = pwd().getArg();
                     cwd(pwd + "/" + f.getName());
-                    uploads(f);
+                    uploads(f, withSecurity);
                     cwd(pwd);
                 } else {
-                    /**
-                     * Get a passive port from server
-                     */
-                    ResponseBody response = pasv();
-                    /**
-                     * Preparation before real data transfer.
-                     */
-                    stor(f);
-                    /**
-                     * Transfer data.
-                     */
-                    upload(f, response.getPassivePort());
+                    String localMd5 = DigestUtils.md5Hex(new FileInputStream(f));
+
+                    String remoteMd5 = md5(f.getName()).getArg();
+
+                    if (!localMd5.equals(remoteMd5)) {
+                        /**
+                         * Get a passive port from server
+                         */
+                        ResponseBody response = pasv();
+                        /**
+                         * Preparation before real data transfer.
+                         */
+                        if (withSecurity) {
+                            stors(f.getName());
+                        } else {
+                            stor(f.getName());
+                        }
+                        /**
+                         * Transfer data.
+                         */
+                        upload(f, response.getPassivePort(), withSecurity);
+                    }
                 }
             }
         } else {
-            ResponseBody response = pasv();
-            stor(file);
-            upload(file, response.getPassivePort());
+            String localMd5 = DigestUtils.md5Hex(new FileInputStream(file));
+
+            String remoteMd5 = md5(file.getName()).getArg();
+
+            if (!localMd5.equals(remoteMd5)) {
+                ResponseBody response = pasv();
+                if (withSecurity) {
+                    stors(file.getName());
+                } else {
+                    stor(file.getName());
+                }
+                upload(file, response.getPassivePort(), withSecurity);
+            }
         }
 
         return true;
     }
 
     @Override
-    public boolean downloads(File file, String remote) throws IOException, ClassNotFoundException {
+    public boolean downloads(File file, String remote, boolean withSecurity) throws IOException, ClassNotFoundException {
         /**
          * if change working directory operation success
          */
@@ -68,18 +86,32 @@ public class AdvancedOperationSet extends BasicOperationSet {
                 if (files.get(key)) {
                     File subDirectory = new File(file.getPath() + "/" + key);
                     subDirectory.mkdir();
-                    downloads(subDirectory, remote + "/" + key);
+                    downloads(subDirectory, remote + "/" + key, withSecurity);
                     cwd(remote);
                 } else {
-                    /**
-                     * Get a passive port from server
-                     */
-                    ResponseBody response = pasv();
-
-                    retr(key);
-
                     File f = new File(file.getPath() + "/" + key);
-                    download(f, response.getPassivePort());
+
+                    String localMd5 = "";
+                    if (f.exists()) {
+                        localMd5 = DigestUtils.md5Hex(new FileInputStream(f));
+                    }
+
+                    String remoteMd5 = md5(key).getArg();
+
+                    if (!localMd5.equals(remoteMd5)) {
+                        /**
+                         * Get a passive port from server
+                         */
+                        ResponseBody response = pasv();
+
+                        if (withSecurity) {
+                            retrs(key);
+                        } else {
+                            retr(key);
+                        }
+
+                        download(f, response.getPassivePort(), withSecurity);
+                    }
                 }
             }
         } else {
@@ -87,14 +119,27 @@ public class AdvancedOperationSet extends BasicOperationSet {
 
             cwd(remote.substring(0, tag));
 
-            ResponseBody response = pasv();
-
-            retr(remote.substring(tag));
-
             File f = new File(file.getPath() + "/" + remote.substring(tag));
-            download(f, response.getPassivePort());
-        }
 
+            String localMd5 = "";
+            if (file.exists()) {
+                localMd5 = DigestUtils.md5Hex(new FileInputStream(f));
+            }
+
+            String remoteMd5 = md5(remote.substring(tag)).getArg();
+
+            if (!localMd5.equals(remoteMd5)) {
+                ResponseBody response = pasv();
+
+                if (withSecurity) {
+                    retrs(remote.substring(tag));
+                } else {
+                    retr(remote.substring(tag));
+                }
+
+                download(f, response.getPassivePort(), withSecurity);
+            }
+        }
 
         return true;
     }
