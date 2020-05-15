@@ -110,7 +110,12 @@ public class Controller implements Initializable{
         client.connect(ip_address, port1);
         authenticator.connect(ip_address, port2);
         authenticator.authenticate();
-        init="D:/OTHER/server";
+        init="D:/1232112";
+        ResponseBody a = client.switch1(init);//切换目录
+        ResponseBody b = client.switch2(init);//输出当前目录
+        int c=b.toString().length();
+        init=b.toString().substring(28,c-2);
+        address.appendText(" ");
         address.appendText(init);
         print(init);
     }
