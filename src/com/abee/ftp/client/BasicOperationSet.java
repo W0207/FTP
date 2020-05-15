@@ -5,7 +5,8 @@ import com.abee.ftp.common.state.RequestBody;
 import com.abee.ftp.common.state.RequestCommand;
 import com.abee.ftp.common.state.ResponseBody;
 import com.abee.ftp.common.tool.FileTransferUtil;
-
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 
 import java.io.*;
 import java.net.Socket;
@@ -26,7 +27,9 @@ public abstract class BasicOperationSet {
      */
     ObjectInputStream in;
 
-    public BasicOperationSet(ObjectOutputStream out, ObjectInputStream in) {
+    String ip;
+
+    public BasicOperationSet(ObjectOutputStream out, ObjectInputStream in, String ip) {
         this.out = out;
         this.in = in;
     }
@@ -107,7 +110,7 @@ public abstract class BasicOperationSet {
      * Upload single file.
      */
     public ResponseBody upload(File file, int port, boolean withSecurity) throws IOException, ClassNotFoundException {
-        Socket dataSocket = new Socket("localhost", port);
+        Socket dataSocket = new Socket(ip, port);
         OutputStream dataStream = dataSocket.getOutputStream();
         if (withSecurity) {
             FileTransferUtil.secureFile2Stream(dataStream, file, Authenticator.LOCAL_PUBLIC_KEY, true);
@@ -121,7 +124,7 @@ public abstract class BasicOperationSet {
      * Download single file.
      */
     public ResponseBody download(File file, int port, boolean withSecurity) throws IOException, ClassNotFoundException {
-        Socket dataSocket = new Socket("localhost", port);
+        Socket dataSocket = new Socket(ip, port);
         InputStream dataStream = dataSocket.getInputStream();
         if (withSecurity) {
             FileTransferUtil.secureStream2File(dataStream, file, Authenticator.LOCAL_PUBLIC_KEY, false);

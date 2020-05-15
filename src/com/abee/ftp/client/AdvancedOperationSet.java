@@ -13,8 +13,8 @@ import java.util.Objects;
  */
 public class AdvancedOperationSet extends BasicOperationSet {
 
-    public AdvancedOperationSet(ObjectOutputStream out, ObjectInputStream in) {
-        super(out, in);
+    public AdvancedOperationSet(ObjectOutputStream out, ObjectInputStream in, String ip) {
+        super(out, in, ip);
     }
 
     @Override
@@ -93,7 +93,9 @@ public class AdvancedOperationSet extends BasicOperationSet {
 
                     String localMd5 = "";
                     if (f.exists()) {
-                        localMd5 = DigestUtils.md5Hex(new FileInputStream(f));
+                        FileInputStream fis = new FileInputStream(f);
+                        localMd5 = DigestUtils.md5Hex(fis);
+                        fis.close();
                     }
 
                     String remoteMd5 = md5(key).getArg();
@@ -122,8 +124,10 @@ public class AdvancedOperationSet extends BasicOperationSet {
             File f = new File(file.getPath() + "/" + remote.substring(tag));
 
             String localMd5 = "";
-            if (file.exists()) {
-                localMd5 = DigestUtils.md5Hex(new FileInputStream(f));
+            if (f.exists()) {
+                FileInputStream fis = new FileInputStream(f);
+                localMd5 = DigestUtils.md5Hex(fis);
+                fis.close();
             }
 
             String remoteMd5 = md5(remote.substring(tag)).getArg();

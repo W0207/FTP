@@ -85,21 +85,11 @@ public class Controller implements Initializable{
                 break;
         }
     }
-<<<<<<< HEAD
-    
-    public void Button_Connect(javafx.event.ActionEvent actionEvent)throws IOException,ClassNotFoundException {
-        client.connect("localhost", 2221);
-        String init="D:/server";
-        ResponseBody a = client.switch1(init);//切换目录
-        ResponseBody b = client.switch2(init);//输出当前目录
-        Map<String, Boolean> c = client.switch3(init);//打印列表
-=======
 
     public void print(String root) throws IOException, ClassNotFoundException {
         ResponseBody a = client.switch1(root);//切换目录
         ResponseBody b = client.switch2(root);//输出当前目录
         Map<String, Boolean> c = client.switch3(root);//打印列表
->>>>>>> 24d5527... update
         Print_List(c.toString());
         show_response.appendText(a.toString());
         show_response.appendText("\n");
@@ -108,18 +98,6 @@ public class Controller implements Initializable{
     }
 
     public void Button_Confirm(javafx.event.ActionEvent actionEvent)throws IOException,ClassNotFoundException {
-<<<<<<< HEAD
-        String catalog_address=catalog.getText().toString();
-        ResponseBody a = client.switch1(catalog_address);  //切换目录
-        ResponseBody b = client.switch2(catalog_address);  //输出当前目录
-        Map<String, Boolean> c = client.switch3(catalog_address);  //打印列表
-        show_list.setText("");
-        Print_List(c.toString());
-        show_response.appendText(a.toString());
-        show_response.appendText("\n");
-        show_response.appendText(b.toString());
-        show_response.appendText("\n");
-=======
         show_dictionary.clear();
         String new_address=address.getText();
         print(new_address);
@@ -135,7 +113,6 @@ public class Controller implements Initializable{
         init="D:/OTHER/server";
         address.appendText(init);
         print(init);
->>>>>>> 24d5527... update
     }
 
     public void Button_Download(javafx.event.ActionEvent actionEvent)throws ClassNotFoundException,IOException{
