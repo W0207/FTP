@@ -59,6 +59,7 @@ public class Controller implements Initializable{
     }
 
     public void Print_List(String x){
+        show_dictionary.clear();
         String y,z;
         int m,p,q;
         m=x.length();
@@ -115,7 +116,7 @@ public class Controller implements Initializable{
         ResponseBody b = client.switch2(init);//输出当前目录
         int c=b.toString().length();
         init=b.toString().substring(28,c-2);
-        address.appendText(" ");
+        address.clear();
         address.appendText(init);
         print(init);
     }
